@@ -3,4 +3,9 @@ __pycache__/
 .env
 mlruns/
 data/raw/
-models/
+models/*
+!models/model.pkl
+!models/selector.pkl
+!models/selected_200_features.csv
+!models/top10_genes.csv
+!models/gene_importance.csv
