@@ -164,6 +164,11 @@ Generated in `models/`:
 - `gene_importance.csv`
 - `top10_genes.csv`
 
+Generated in `data/processed/` after training:
+
+- `processed_expression_data.csv`
+  - normalized sample-by-feature dataset with `label` and `label_name`
+
 ## API
 
 The FastAPI app lives in `api/app.py`.
@@ -229,6 +234,10 @@ pip install -r requirements.txt
 ```powershell
 python -m src.train
 ```
+
+This also creates:
+
+- `data/processed/processed_expression_data.csv`
 
 ### 3. Start the API
 

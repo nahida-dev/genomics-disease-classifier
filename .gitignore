@@ -2,7 +2,9 @@ __pycache__/
 *.pyc
 .env
 mlruns/
-data/raw/
+data/raw/*
+!data/raw/GSE15852_series_matrix.txt
+!data/raw/GPL96-57554.txt
 models/*
 !models/model.pkl
 !models/selector.pkl

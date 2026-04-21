@@ -36,6 +36,28 @@ def train():
     print("Original shape:", X.shape)
 
     # ------------------------
+    # Save processed dataset
+    # ------------------------
+    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    processed_df = X.copy()
+    processed_df.insert(0, "label", y)
+    processed_df.insert(
+        1,
+        "label_name",
+        ["Cancer" if label == 1 else "Normal" for label in y],
+    )
+    processed_df.to_csv(
+        PROCESSED_DATA_DIR / "processed_expression_data.csv",
+        index=False,
+    )
+
+    print(
+        "Processed dataset saved to "
+        "data/processed/processed_expression_data.csv"
+    )
+
+    # ------------------------
     # Models
     # ------------------------
     models = {
