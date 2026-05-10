@@ -4,20 +4,38 @@ import numpy as np
 
 from sklearn.feature_selection import SelectKBest, f_classif
 
+
+def _classify_sample_title(sample_title: str) -> int:
+    normalized_title = sample_title.strip().strip('"').casefold()
+
+    if normalized_title.startswith("normal "):
+        return 0
+    if normalized_title.startswith("cancer "):
+        return 1
+
+    raise ValueError(
+        f"Unrecognized sample title format: {sample_title!r}. "
+        "Expected titles starting with 'Normal ' or 'Cancer '."
+    )
+
+
 def extract_labels(file_path: str):
-    labels = []
+    labels = None
 
     with open(file_path, "r") as f:
         for line in f:
             if line.startswith("!Sample_title"):
                 parts = line.strip().split("\t")[1:]
-                
-                for p in parts:
-                    if "Normal" in p:
-                        labels.append(0)
-                    elif "Cancer" in p:
-                        labels.append(1)
+                labels = [_classify_sample_title(part) for part in parts]
                 break
+
+    if labels is None:
+        raise ValueError(
+            "Could not find '!Sample_title' metadata row in the expression file."
+        )
+
+    if not labels:
+        raise ValueError("No sample labels were extracted from the expression file.")
 
     return labels
 
@@ -50,7 +68,22 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def normalize_data(df: pd.DataFrame) -> pd.DataFrame:
-    return np.log1p(df.astype(float))
+    numeric_df = df.astype(float)
+
+    invalid_mask = numeric_df < -1
+    if invalid_mask.to_numpy().any():
+        invalid_count = int(invalid_mask.sum().sum())
+        raise ValueError(
+            "normalize_data received values below -1, which are invalid for "
+            f"log1p. Found {invalid_count} invalid measurements."
+        )
+
+    normalized_df = np.log1p(numeric_df)
+
+    if not np.isfinite(normalized_df.to_numpy()).all():
+        raise ValueError("normalize_data produced non-finite values.")
+
+    return normalized_df
 
 
 # Approach 1: Variance-Based Feature Selection
